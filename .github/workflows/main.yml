@@ -13,14 +13,23 @@ jobs:
       ANDROID_HOME: /home/runner/work/_temp/android-sdk
       PATH: /home/runner/work/_temp/android-sdk/cmdline-tools/latest/bin:/home/runner/work/_temp/android-sdk/platform-tools:$PATH
     steps:
+      # Install tar before checkout
+      - name: Install tar
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tar
+
+      # Checkout repository
       - uses: actions/checkout@v2
 
+      # Install dependencies
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y python3-pip build-essential git zip unzip wget openjdk-17-jdk
           pip install --upgrade pip Cython buildozer
 
+      # Setup Android SDK
       - name: Setup Android SDK
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools"
@@ -31,10 +40,12 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
+      # Build APK
       - name: Build with Buildozer
         run: |
           buildozer android debug
 
+      # Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
