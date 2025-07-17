@@ -1,11 +1,11 @@
 name: Build APK
 
 on:
-  workflow_dispatch:   # 👈 मैन्युअली Run workflow करने के लिए
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest   # 👈 GitHub-hosted Ubuntu runner
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
@@ -14,17 +14,17 @@ jobs:
       PATH: /home/runner/android-sdk/cmdline-tools/latest/bin:/home/runner/android-sdk/platform-tools:$PATH
 
     steps:
-      # ✅ 1. Checkout repo
+      # Checkout
       - uses: actions/checkout@v3
 
-      # ✅ 2. Install dependencies
+      # Install dependencies (without sudo)
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y tar python3-pip build-essential git zip unzip wget openjdk-17-jdk
+          apt-get update
+          apt-get install -y tar python3-pip build-essential git zip unzip wget openjdk-17-jdk
           pip install --upgrade pip Cython buildozer
 
-      # ✅ 3. Setup Android SDK
+      # Setup Android SDK
       - name: Setup Android SDK
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools"
@@ -35,12 +35,12 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
-      # ✅ 4. Build APK with Buildozer
+      # Build APK
       - name: Build with Buildozer
         run: |
           buildozer android debug
 
-      # ✅ 5. Upload APK artifact
+      # Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
