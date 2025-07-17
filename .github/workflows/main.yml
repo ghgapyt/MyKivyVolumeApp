@@ -9,6 +9,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      ANDROID_HOME: /home/runner/work/_temp/android-sdk
+      PATH: /home/runner/work/_temp/android-sdk/cmdline-tools/latest/bin:/home/runner/work/_temp/android-sdk/platform-tools:$PATH
     steps:
       - uses: actions/checkout@v2
 
@@ -19,8 +22,6 @@ jobs:
           pip install --upgrade pip Cython buildozer
 
       - name: Setup Android SDK
-        env:
-          ANDROID_HOME: ${{ github.workspace }}/android-sdk
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools"
           cd "$ANDROID_HOME/cmdline-tools"
@@ -31,8 +32,6 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
       - name: Build with Buildozer
-        env:
-          ANDROID_HOME: ${{ github.workspace }}/android-sdk
         run: |
           buildozer android debug
 
