@@ -7,15 +7,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Checkout your repository
       - uses: actions/checkout@v2
 
+      # Install dependencies and buildozer
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk
+          sudo apt install -y python3-pip build-essential git zip unzip openjdk-17-jdk wget
           pip install --upgrade pip Cython buildozer
 
+      # Setup Android SDK and accept licenses
       - name: Setup Android SDK
+        env:
+          ANDROID_HOME: /home/runner/android-sdk
+          PATH: /home/runner/android-sdk/cmdline-tools/latest/bin:$PATH
         run: |
           mkdir -p "$ANDROID_HOME/cmdline-tools"
           cd "$ANDROID_HOME/cmdline-tools"
@@ -25,10 +31,15 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
+      # Build APK using Buildozer
       - name: Build with Buildozer
+        env:
+          ANDROID_HOME: /home/runner/android-sdk
+          PATH: /home/runner/android-sdk/cmdline-tools/latest/bin:$PATH
         run: |
           buildozer android debug
 
+      # Upload generated APK as artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
